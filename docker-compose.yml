@@ -1,0 +1,29 @@
+services:
+  back:
+    build:
+      context: ./back        
+      dockerfile: Dockerfile
+    ports:  
+      - "${PORT}:${PORT}"  # Маппинг порта из .env → контейнер слушает 8000 внутри
+    env_file:
+      - .env
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/  # Постоянное хранилище
+    ports:
+      - "${POSTGRES_PORT}:5432"  # Опционально: если хочешь подключаться с хоста
+    restart: unless-stopped
+
+volumes:
+  postgres_data: 

@@ -1,5 +1,6 @@
 .env
 /front/.env
+front/.env
 venv
 
 # Logs

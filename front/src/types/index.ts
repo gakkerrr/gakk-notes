@@ -3,6 +3,6 @@
 export interface Note {
   id: number;
   title: string;
-  content: string;
+  content?: string;
   created_at?: string;
 }

@@ -1,11 +1,15 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from datetime import datetime
+import logging
 from typing import List
 import uvicorn
 import os
 
-HOST = os.getenv("HOST", "0.0.0.0")  # значение по умолчанию
+logging.basicConfig(level=logging.DEBUG)
+
+HOST = os.getenv("HOST", "0.0.0.0")  
 PORT = int(os.getenv("PORT", 8000))
 
 app = FastAPI()
@@ -19,39 +23,53 @@ app.add_middleware(
 )
 
 class NoteCreate(BaseModel):
+
     title: str
     content: str
 
 class Note(NoteCreate):
+
     id: int
-    created_at: str = "2025-01-01T00:00:00"
+    created_at: datetime
 
 notes_db = []
-next_id = 1
 
 @app.get("/notes", response_model=List[Note])
 def get_notes():
+
     return notes_db
 
 @app.post("/notes", response_model=Note)
 def create_note(note: NoteCreate):
-    global next_id
-    new_note = Note(id=next_id, **note.dict())
+
+    current_datetime = datetime.now()
+    new_id = len(notes_db) + 1
+
+    new_note = Note(
+        id=new_id + 1, 
+        created_at=current_datetime,
+        title=note.title,
+        content=note.content)
+    
+    logging.info(f"added new note - {repr(new_note)}")
+
     notes_db.append(new_note)
-    next_id += 1
     return new_note
 
 @app.put("/notes/{note_id}", response_model=Note)
 def update_note(note_id: int, note: NoteCreate):
+
     for n in notes_db:
         if n.id == note_id:
             n.title = note.title
             n.content = note.content
             return n
+        
     raise HTTPException(status_code=404, detail="Note not found")
 
 @app.delete("/notes/{note_id}")
 def delete_note(note_id: int):
+
     global notes_db
     notes_db = [n for n in notes_db if n.id != note_id]
     return {"ok": True}

@@ -56,35 +56,139 @@ export default function NoteList() {
   }
 
   return (
-    <div>
-      {editingNote ? (
-        <NoteForm note={editingNote} onSave={handleSave} onCancel={() => setEditingNote(null)} />
-      ) : (
-        <NoteForm onSave={handleSave} onCancel={() => {}} />
-      )}
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: '1fr 2fr',
+      gap: '20px',
+      width: 'calc(95vw)',
+      height: 'calc(45vw)',
+      backgroundColor: '#1e1e1e',
+      color: 'white',
+      boxSizing: 'border-box',
+      margin: 0, // Добавляем обнуление margin
+    }}>
+      {/* Левая панель — форма */}
+      <div style={{
+        border: '1px solid #444',
+        borderRadius: '8px',
+        padding: '20px',
+        backgroundColor: '#2d2d2d',
+        height: '100%',
+        width: '100%',
+        overflow: 'auto',
+        boxSizing: 'border-box'
+      }}>
+        <NoteForm
+          note={editingNote || undefined}
+          onSave={handleSave}
+          onCancel={() => setEditingNote(null)}
+        />
+      </div>
 
-      <h2>Список заметок</h2>
-      {notes.length === 0 ? (
-        <p>Нет заметок</p>
-      ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
-          {notes.map(note => (
-            <li key={note.id} style={{ border: '1px solid #eee', margin: '10px 0', padding: '15px', borderRadius: '5px' }}>
-              <h4>{note.title}</h4>
-              <p>{note.content}</p>
-              <small>{note.created_at}</small>
-              <div style={{ marginTop: '10px' }}>
-                <button onClick={() => handleEdit(note)} style={{ marginRight: '10px', padding: '5px 10px' }}>
-                  ✏️ Редактировать
-                </button>
-                <button onClick={() => handleDelete(note.id)} style={{ padding: '5px 10px', background: '#f44336', color: 'white' }}>
-                  🗑️ Удалить
-                </button>
+      {/* Правая панель — список заметок */}
+      <div style={{
+        height: '100%',
+        width: '100%',
+        borderRadius: '8px',
+        padding: '0px 20px 0px 0px',
+        overflow: 'auto',
+        boxSizing: 'border-box'
+      }}>
+        <h2 style={{ margin: '16px 0 16px 0', borderRadius: '8px' }}>Список заметок</h2>
+        {notes.length === 0 ? (
+          <p>Нет заметок</p>
+        ) : (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gap: '16px',
+            padding: '0',
+            borderRadius: '8px',
+            height: 'calc(100% - 40px)', 
+            overflow: 'auto',
+            width: '100%',
+            boxSizing: 'border-box'
+          }}>
+            {notes.map(note => (
+              <div
+                key={note.id}
+                style={{
+                  border: '1px solid #444',
+                  borderRadius: '8px',
+                  padding: '16px',
+                  backgroundColor: '#2d2d2d',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                  transition: 'transform 0.2s ease',
+                  cursor: 'pointer',
+                  width: '100%',
+                  boxSizing: 'border-box'
+                }}
+                onClick={() => handleEdit(note)}
+              >
+                <h4 style={{ margin: '0 0 8px 0' }}>{note.title}</h4>
+                <p style={{
+                  fontSize: '0.9em',
+                  color: '#ccc',
+                  maxHeight: '60px',
+                  textOverflow: 'ellipsis',
+                  lineHeight: '1.4',
+                  margin: 0
+                }}>
+                  {note.content}
+                </p>
+                <small style={{
+                  display: 'block',
+                  marginTop: '10px',
+                  fontSize: '0.75em',
+                  color: '#999'
+                }}>
+                  {note.created_at
+                    ? new Date(note.created_at).toLocaleString('ru-RU')
+                    : 'Дата не указана'}
+                </small>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginTop: '10px'
+                }}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(note);
+                    }}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#4caf50',
+                      cursor: 'pointer',
+                      padding: '4px 8px',
+                      fontSize: '0.85em'
+                    }}
+                  >
+                    ✏️ Редактировать
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(note.id);
+                    }}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#f44336',
+                      cursor: 'pointer',
+                      padding: '4px 8px',
+                      fontSize: '0.85em'
+                    }}
+                  >
+                    Удалить
+                  </button>
+                </div>
               </div>
-            </li>
-          ))}
-        </ul>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
